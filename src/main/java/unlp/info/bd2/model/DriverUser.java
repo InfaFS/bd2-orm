@@ -1,12 +1,19 @@
 package unlp.info.bd2.model;
 
-
+import jakarta.persistence.*;
 import java.util.List;
 
+@Entity
 public class DriverUser extends User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String expedient;
 
+    @ManyToMany(mappedBy = "driverList")
     private List<Route> routes;
 
     public String getExpedient() {

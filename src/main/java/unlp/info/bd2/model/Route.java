@@ -1,24 +1,44 @@
 package unlp.info.bd2.model;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Route {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String name;
 
+    @Column(nullable = false)
     private float price;
 
+    @Column(nullable = false)
     private float totalKm;
 
+    @Column(nullable = false)
     private int maxNumberUsers;
 
+    @ManyToMany
     private List<Stop> stops;
 
+    @ManyToMany
+    @JoinTable(
+        name = "route_driver",
+        joinColumns = @JoinColumn(name = "route_id"),
+        inverseJoinColumns = @JoinColumn(name = "driver_id")
+    )
     private List<DriverUser> driverList;
 
+    @ManyToMany
+    @JoinTable(
+        name = "route_tour_guide",
+        joinColumns = @JoinColumn(name = "route_id"),
+        inverseJoinColumns = @JoinColumn(name = "tour_guide_id")
+    )
     private List<TourGuideUser> tourGuideList;
 
     public Long getId() {
