@@ -24,7 +24,6 @@ public class Service {
 
     private Supplier supplier;
 
-
     public Long getId() {
         return id;
     }
