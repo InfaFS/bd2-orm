@@ -1,14 +1,20 @@
 package unlp.info.bd2.model;
 
+import jakarta.persistence.*;
 
+@Entity
 public class ItemService {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     private int quantity;
 
+    @ManyToOne
     private Purchase purchase;
 
+    @ManyToOne
     private Service service;
 
     public Long getId() {

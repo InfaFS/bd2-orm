@@ -1,10 +1,14 @@
 package unlp.info.bd2.model;
 
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 
+@Entity
 public class Purchase {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     private String code;
@@ -19,6 +23,7 @@ public class Purchase {
 
     private Review review;
 
+    @OneToMany(mappedBy = "purchase")
     private List<ItemService> itemServiceList;
 
 
