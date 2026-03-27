@@ -19,14 +19,14 @@ public class Purchase {
 
     private User user;
 
+    @ManyToOne
     private Route route;
 
+    @OneToOne(mappedBy = "purchase")
     private Review review;
 
     @OneToMany(mappedBy = "purchase")
     private List<ItemService> itemServiceList;
-
-
 
     public Long getId() {
         return id;

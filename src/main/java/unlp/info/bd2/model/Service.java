@@ -22,6 +22,7 @@ public class Service {
     @OneToMany(mappedBy = "service")
     private List<ItemService> itemServiceList;
 
+    @ManyToOne
     private Supplier supplier;
 
     public Long getId() {
