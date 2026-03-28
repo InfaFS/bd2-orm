@@ -17,15 +17,16 @@ public class Purchase {
 
     private Date date;
 
+    @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Route route;
 
-    @OneToOne(mappedBy = "purchase")
+    @OneToOne(mappedBy = "purchase", fetch = FetchType.LAZY)
     private Review review;
 
-    @OneToMany(mappedBy = "purchase")
+    @OneToMany(mappedBy = "purchase", fetch = FetchType.LAZY)
     private List<ItemService> itemServiceList;
 
     public Long getId() {

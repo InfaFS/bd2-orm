@@ -22,10 +22,10 @@ public class Route {
     @Column(nullable = false)
     private int maxNumberUsers;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Stop> stops;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "route_driver",
         joinColumns = @JoinColumn(name = "route_id"),
@@ -33,7 +33,7 @@ public class Route {
     )
     private List<DriverUser> driverList;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "route_tour_guide",
         joinColumns = @JoinColumn(name = "route_id"),

@@ -1,11 +1,16 @@
 package unlp.info.bd2.model;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String username;
@@ -22,6 +27,7 @@ public class User {
 
     private boolean active;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Purchase> purchaseList;
 
 

@@ -14,7 +14,7 @@ public class ItemService {
     @ManyToOne
     private Purchase purchase;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Service service;
 
     public Long getId() {

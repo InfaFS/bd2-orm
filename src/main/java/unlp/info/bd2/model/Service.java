@@ -22,7 +22,7 @@ public class Service {
     @OneToMany(mappedBy = "service")
     private List<ItemService> itemServiceList;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Supplier supplier;
 
     public Long getId() {
