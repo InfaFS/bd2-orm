@@ -14,7 +14,7 @@ public class Supplier {
 
     private String authorizationNumber;
 
-    @OneToMany(mappedBy = "supplier")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "supplier", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private List<Service> services;
 
     public Long getId() {

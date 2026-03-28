@@ -22,23 +22,15 @@ public class Route {
     @Column(nullable = false)
     private int maxNumberUsers;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private List<Stop> stops;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "route_driver",
-        joinColumns = @JoinColumn(name = "route_id"),
-        inverseJoinColumns = @JoinColumn(name = "driver_id")
-    )
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(name = "route_driver", joinColumns = @JoinColumn(name = "route_id"), inverseJoinColumns = @JoinColumn(name = "driver_id"))
     private List<DriverUser> driverList;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "route_tour_guide",
-        joinColumns = @JoinColumn(name = "route_id"),
-        inverseJoinColumns = @JoinColumn(name = "tour_guide_id")
-    )
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(name = "route_tour_guide", joinColumns = @JoinColumn(name = "route_id"), inverseJoinColumns = @JoinColumn(name = "tour_guide_id"))
     private List<TourGuideUser> tourGuideList;
 
     public Long getId() {

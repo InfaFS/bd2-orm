@@ -19,7 +19,7 @@ public class Service {
 
     private String description;
 
-    @OneToMany(mappedBy = "service")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "service", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private List<ItemService> itemServiceList;
 
     @ManyToOne(fetch = FetchType.EAGER)

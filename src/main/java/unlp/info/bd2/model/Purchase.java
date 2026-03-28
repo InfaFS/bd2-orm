@@ -23,10 +23,10 @@ public class Purchase {
     @ManyToOne(fetch = FetchType.EAGER)
     private Route route;
 
-    @OneToOne(mappedBy = "purchase", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "purchase", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Review review;
 
-    @OneToMany(mappedBy = "purchase", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "purchase", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemService> itemServiceList;
 
     public Long getId() {

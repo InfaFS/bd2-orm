@@ -27,9 +27,8 @@ public class User {
 
     private boolean active;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private List<Purchase> purchaseList;
-
 
     public Long getId() {
         return id;
