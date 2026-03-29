@@ -3,6 +3,8 @@ package unlp.info.bd2.repositories;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import unlp.info.bd2.model.Purchase;
 import unlp.info.bd2.model.User;
 
 import java.util.List;
@@ -48,5 +50,13 @@ public class UserRepositoryImpl implements UserRepository {
                 .createQuery("FROM User u WHERE u.username = :username", User.class)
                 .setParameter("username", username)
                 .uniqueResult();
+    }
+
+    @Override
+    public List<User> getUserSpendingMoreThan(float amount) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("SELECT DISTINCT p.user FROM Purchase p WHERE p.totalPrice >= :amount", User.class)
+                .setParameter("amount", amount)
+                .list();
     }
 }

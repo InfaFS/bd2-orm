@@ -5,9 +5,16 @@ import java.util.List;
 
 public interface PurchaseRepository {
     Purchase save(Purchase purchase);
+
     Purchase findById(Long id);
+
     List<Purchase> findAll();
+
     void delete(Purchase purchase);
+
     Purchase update(Purchase purchase);
+
     Purchase findByCode(String code);
+
+    List<Purchase> findByUsername(String username);
 }

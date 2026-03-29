@@ -49,4 +49,12 @@ public class PurchaseRepositoryImpl implements PurchaseRepository {
                 .setParameter("code", code)
                 .uniqueResult();
     }
+
+    @Override
+    public List<Purchase> findByUsername(String username) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM Purchase p WHERE p.user.username = :username", Purchase.class)
+                .setParameter("username", username)
+                .list();
+    }
 }

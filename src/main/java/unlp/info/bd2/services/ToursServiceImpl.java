@@ -303,7 +303,7 @@ public class ToursServiceImpl implements ToursService {
     @Override
     @Transactional(readOnly = true)
     public List<Purchase> getAllPurchasesOfUsername(String username) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return repository.getPurchaseRepository().findByUsername(username);
     }
 
     @Override
