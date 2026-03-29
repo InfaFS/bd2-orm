@@ -1,0 +1,12 @@
+package unlp.info.bd2.repositories;
+
+import unlp.info.bd2.model.Purchase;
+import java.util.List;
+
+public interface PurchaseRepository {
+    Purchase save(Purchase purchase);
+    Purchase findById(Long id);
+    List<Purchase> findAll();
+    void delete(Purchase purchase);
+    Purchase update(Purchase purchase);
+}
