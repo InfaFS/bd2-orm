@@ -7,4 +7,5 @@ public interface ToursRepository {
     ServiceRepository getServiceRepository();
     SupplierRepository getSupplierRepository();
     ReviewRepository getReviewRepository();
+    StopRepository getStopRepository();
 }

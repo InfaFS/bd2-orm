@@ -9,4 +9,5 @@ public interface SupplierRepository {
     List<Supplier> findAll();
     void delete(Supplier supplier);
     Supplier update(Supplier supplier);
+    Supplier findByAuthorizationNumber(String authorizationNumber);
 }

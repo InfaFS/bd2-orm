@@ -41,4 +41,12 @@ public class PurchaseRepositoryImpl implements PurchaseRepository {
         sessionFactory.getCurrentSession().update(purchase);
         return purchase;
     }
+
+    @Override
+    public Purchase findByCode(String code) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM Purchase p WHERE p.code = :code", Purchase.class)
+                .setParameter("code", code)
+                .uniqueResult();
+    }
 }

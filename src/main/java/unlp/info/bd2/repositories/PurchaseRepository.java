@@ -9,4 +9,5 @@ public interface PurchaseRepository {
     List<Purchase> findAll();
     void delete(Purchase purchase);
     Purchase update(Purchase purchase);
+    Purchase findByCode(String code);
 }

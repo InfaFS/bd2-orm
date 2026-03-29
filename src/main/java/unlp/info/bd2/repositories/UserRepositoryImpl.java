@@ -41,4 +41,12 @@ public class UserRepositoryImpl implements UserRepository {
         sessionFactory.getCurrentSession().update(user);
         return user;
     }
+
+    @Override
+    public User findByUsername(String username) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", username)
+                .uniqueResult();
+    }
 }

@@ -24,6 +24,9 @@ public class ToursRepositoryImpl implements ToursRepository {
     @Autowired
     private ReviewRepository reviewRepository;
 
+    @Autowired
+    private StopRepository stopRepository;
+
     @Override
     public UserRepository getUserRepository() {
         return userRepository;
@@ -52,5 +55,10 @@ public class ToursRepositoryImpl implements ToursRepository {
     @Override
     public ReviewRepository getReviewRepository() {
         return reviewRepository;
+    }
+
+    @Override
+    public StopRepository getStopRepository() {
+        return stopRepository;
     }
 }

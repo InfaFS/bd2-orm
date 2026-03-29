@@ -41,4 +41,12 @@ public class SupplierRepositoryImpl implements SupplierRepository {
         sessionFactory.getCurrentSession().update(supplier);
         return supplier;
     }
+
+    @Override
+    public Supplier findByAuthorizationNumber(String authorizationNumber) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM Supplier s WHERE s.authorizationNumber = :num", Supplier.class)
+                .setParameter("num", authorizationNumber)
+                .uniqueResult();
+    }
 }

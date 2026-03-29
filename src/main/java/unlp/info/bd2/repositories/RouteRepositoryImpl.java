@@ -41,4 +41,21 @@ public class RouteRepositoryImpl implements RouteRepository {
         sessionFactory.getCurrentSession().update(route);
         return route;
     }
+
+    @Override
+    public List<Route> findBelowPrice(float price) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM Route r WHERE r.price < :price", Route.class)
+                .setParameter("price", price)
+                .list();
+    }
+
+    @Override
+    public boolean hasPurchases(Long routeId) {
+        Long count = sessionFactory.getCurrentSession()
+                .createQuery("SELECT COUNT(p) FROM Purchase p WHERE p.route.id = :routeId", Long.class)
+                .setParameter("routeId", routeId)
+                .uniqueResult();
+        return count != null && count > 0;
+    }
 }

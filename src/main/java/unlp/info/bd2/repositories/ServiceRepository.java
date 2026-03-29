@@ -9,4 +9,5 @@ public interface ServiceRepository {
     List<Service> findAll();
     void delete(Service service);
     Service update(Service service);
+    Service findByNameAndSupplierId(String name, Long supplierId);
 }

@@ -9,4 +9,6 @@ public interface RouteRepository {
     List<Route> findAll();
     void delete(Route route);
     Route update(Route route);
+    List<Route> findBelowPrice(float price);
+    boolean hasPurchases(Long routeId);
 }

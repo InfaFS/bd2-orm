@@ -97,4 +97,17 @@ public class Route {
         this.tourGuideList = tourGuideList;
     }
 
+    public void addDriver(DriverUser driver) {
+        if (this.driverList == null) {
+            this.driverList = new ArrayList<>();
+        }
+        this.driverList.add(driver);
+    }
+
+    public void addTourGuide(TourGuideUser guide) {
+        if (this.tourGuideList == null) {
+            this.tourGuideList = new ArrayList<>();
+        }
+        this.tourGuideList.add(guide);
+    }
 }

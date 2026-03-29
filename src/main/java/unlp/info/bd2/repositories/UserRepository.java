@@ -9,4 +9,5 @@ public interface UserRepository {
     List<User> findAll();
     void delete(User user);
     User update(User user);
+    User findByUsername(String username);
 }

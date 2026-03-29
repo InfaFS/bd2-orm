@@ -41,4 +41,13 @@ public class ServiceRepositoryImpl implements ServiceRepository {
         sessionFactory.getCurrentSession().update(service);
         return service;
     }
+
+    @Override
+    public Service findByNameAndSupplierId(String name, Long supplierId) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM Service s WHERE s.name = :name AND s.supplier.id = :supplierId", Service.class)
+                .setParameter("name", name)
+                .setParameter("supplierId", supplierId)
+                .uniqueResult();
+    }
 }
