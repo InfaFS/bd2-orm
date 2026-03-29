@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import unlp.info.bd2.model.Purchase;
+import unlp.info.bd2.model.TourGuideUser;
 import unlp.info.bd2.model.User;
 
 import java.util.List;
@@ -57,6 +58,20 @@ public class UserRepositoryImpl implements UserRepository {
         return sessionFactory.getCurrentSession()
                 .createQuery("SELECT DISTINCT p.user FROM Purchase p WHERE p.totalPrice >= :amount", User.class)
                 .setParameter("amount", amount)
+                .list();
+    }
+
+    @Override
+    public List<TourGuideUser> getTourGuidesWithRating1() {
+        return sessionFactory.getCurrentSession()
+                .createQuery(
+                    "SELECT DISTINCT g " +
+                    "FROM Purchase p " +
+                    "JOIN p.review r " +
+                    "JOIN p.route route " +
+                    "JOIN route.tourGuideList g " +
+                    "WHERE r.rating = 1",
+                    TourGuideUser.class)
                 .list();
     }
 }

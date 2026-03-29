@@ -49,4 +49,17 @@ public class SupplierRepositoryImpl implements SupplierRepository {
                 .setParameter("num", authorizationNumber)
                 .uniqueResult();
     }
+
+    @Override
+    public List<Supplier> findTopNByPurchases(int n) {
+        return sessionFactory.getCurrentSession()
+                .createQuery(
+                    "SELECT item.service.supplier " +
+                    "FROM ItemService item " +
+                    "GROUP BY item.service.supplier " +
+                    "ORDER BY COUNT(DISTINCT item.purchase) DESC",
+                    Supplier.class)
+                .setMaxResults(n)
+                .list();
+    }
 }

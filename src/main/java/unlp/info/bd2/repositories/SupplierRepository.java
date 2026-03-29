@@ -10,4 +10,5 @@ public interface SupplierRepository {
     void delete(Supplier supplier);
     Supplier update(Supplier supplier);
     Supplier findByAuthorizationNumber(String authorizationNumber);
+    List<Supplier> findTopNByPurchases(int n);
 }

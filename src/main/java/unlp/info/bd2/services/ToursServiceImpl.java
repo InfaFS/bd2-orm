@@ -24,7 +24,7 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public User createUser(String username, String password, String fullName,
-                           String email, Date birthdate, String phoneNumber) throws ToursException {
+            String email, Date birthdate, String phoneNumber) throws ToursException {
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
@@ -38,8 +38,8 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public DriverUser createDriverUser(String username, String password, String fullName,
-                                       String email, Date birthdate, String phoneNumber,
-                                       String expedient) throws ToursException {
+            String email, Date birthdate, String phoneNumber,
+            String expedient) throws ToursException {
         DriverUser driver = new DriverUser();
         driver.setUsername(username);
         driver.setPassword(password);
@@ -54,8 +54,8 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public TourGuideUser createTourGuideUser(String username, String password, String fullName,
-                                             String email, Date birthdate, String phoneNumber,
-                                             String education) throws ToursException {
+            String email, Date birthdate, String phoneNumber,
+            String education) throws ToursException {
         TourGuideUser guide = new TourGuideUser();
         guide.setUsername(username);
         guide.setPassword(password);
@@ -119,7 +119,7 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public Route createRoute(String name, float price, float totalKm,
-                             int maxNumberOfUsers, List<Stop> stops) throws ToursException {
+            int maxNumberOfUsers, List<Stop> stops) throws ToursException {
         Route route = new Route();
         route.setName(name);
         route.setPrice(price);
@@ -208,7 +208,7 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public Service addServiceToSupplier(String name, float price, String description,
-                                        Supplier supplier) throws ToursException {
+            Supplier supplier) throws ToursException {
         Service service = new Service();
         service.setName(name);
         service.setPrice(price);
@@ -309,54 +309,54 @@ public class ToursServiceImpl implements ToursService {
     @Override
     @Transactional(readOnly = true)
     public List<User> getUserSpendingMoreThan(float mount) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return repository.getUserRepository().getUserSpendingMoreThan(mount);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Supplier> getTopNSuppliersInPurchases(int n) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return repository.getSupplierRepository().findTopNByPurchases(n);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long getCountOfPurchasesBetweenDates(Date start, Date end) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return repository.getPurchaseRepository().getCountOfPurchasesBetweenDates(start, end);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Route> getRoutesWithStop(Stop stop) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return repository.getRouteRepository().getRoutesWithStop(stop);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Long getMaxStopOfRoutes() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return (long) repository.getRouteRepository().getMaxStopOfRoutes();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Route> getRoutsNotSell() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return repository.getRouteRepository().getRoutsNotSell();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Route> getTop3RoutesWithMaxRating() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return repository.getRouteRepository().getTop3RoutesWithMaxRating();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Service getMostDemandedService() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return repository.getServiceRepository().getMostDemandedService();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<TourGuideUser> getTourGuidesWithRating1() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return repository.getUserRepository().getTourGuidesWithRating1();
     }
 }

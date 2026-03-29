@@ -57,4 +57,14 @@ public class PurchaseRepositoryImpl implements PurchaseRepository {
                 .setParameter("username", username)
                 .list();
     }
+
+    @Override
+    public int getCountOfPurchasesBetweenDates(java.util.Date start, java.util.Date end) {
+        Long count = sessionFactory.getCurrentSession()
+                .createQuery("SELECT COUNT(p) FROM Purchase p WHERE p.date BETWEEN :start AND :end", Long.class)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .uniqueResult();
+        return count != null ? count.intValue() : 0;
+    }
 }

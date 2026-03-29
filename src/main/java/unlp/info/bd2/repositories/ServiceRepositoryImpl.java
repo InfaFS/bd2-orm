@@ -50,4 +50,18 @@ public class ServiceRepositoryImpl implements ServiceRepository {
                 .setParameter("supplierId", supplierId)
                 .uniqueResult();
     }
+
+    @Override
+    public Service getMostDemandedService() {
+        return sessionFactory.getCurrentSession()
+                .createQuery(
+                        "SELECT item.service " +
+                                "FROM ItemService item " +
+                                "GROUP BY item.service " +
+                                "ORDER BY COUNT(DISTINCT item.purchase) DESC",
+                        Service.class)
+                .setMaxResults(1)
+                .uniqueResult();
+    }
+
 }

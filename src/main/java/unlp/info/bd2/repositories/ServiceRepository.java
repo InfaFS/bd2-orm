@@ -5,9 +5,16 @@ import java.util.List;
 
 public interface ServiceRepository {
     Service save(Service service);
+
     Service findById(Long id);
+
     List<Service> findAll();
+
     void delete(Service service);
+
     Service update(Service service);
+
     Service findByNameAndSupplierId(String name, Long supplierId);
+
+    Service getMostDemandedService();
 }
