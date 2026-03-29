@@ -6,7 +6,10 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type", // Nombre de la columna en la DB
+        discriminatorType = DiscriminatorType.STRING // Tipo de dato (puede ser CHAR o INTEGER)
+)
 public class User {
 
     @Id

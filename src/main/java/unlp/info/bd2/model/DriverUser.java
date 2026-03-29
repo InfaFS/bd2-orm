@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@DiscriminatorValue("DRIVER")
 public class DriverUser extends User {
 
     private Long id;
