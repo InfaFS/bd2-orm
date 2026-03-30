@@ -3,6 +3,7 @@ package unlp.info.bd2.repositories;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import unlp.info.bd2.model.ItemService;
 import unlp.info.bd2.model.Purchase;
 
 import java.util.List;
@@ -66,5 +67,20 @@ public class PurchaseRepositoryImpl implements PurchaseRepository {
                 .setParameter("end", end)
                 .uniqueResult();
         return count != null ? count.intValue() : 0;
+    }
+
+    @Override
+    public long countByRoute(Long routeId) {
+        Long count = sessionFactory.getCurrentSession()
+                .createQuery("SELECT COUNT(p) FROM Purchase p WHERE p.route.id = :routeId", Long.class)
+                .setParameter("routeId", routeId)
+                .uniqueResult();
+        return count != null ? count : 0L;
+    }
+
+    @Override
+    public ItemService saveItem(ItemService item) {
+        sessionFactory.getCurrentSession().save(item);
+        return item;
     }
 }

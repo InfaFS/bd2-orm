@@ -22,9 +22,16 @@ public class ToursServiceImpl implements ToursService {
     // USER
     // -------------------------------------------------------------------------
 
+    private void checkUsernameUnique(String username) throws ToursException {
+        if (repository.getUserRepository().findByUsername(username) != null) {
+            throw new ToursException("Username already exists: " + username);
+        }
+    }
+
     @Override
     public User createUser(String username, String password, String fullName,
             String email, Date birthdate, String phoneNumber) throws ToursException {
+        checkUsernameUnique(username);
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
@@ -40,6 +47,7 @@ public class ToursServiceImpl implements ToursService {
     public DriverUser createDriverUser(String username, String password, String fullName,
             String email, Date birthdate, String phoneNumber,
             String expedient) throws ToursException {
+        checkUsernameUnique(username);
         DriverUser driver = new DriverUser();
         driver.setUsername(username);
         driver.setPassword(password);
@@ -56,6 +64,7 @@ public class ToursServiceImpl implements ToursService {
     public TourGuideUser createTourGuideUser(String username, String password, String fullName,
             String email, Date birthdate, String phoneNumber,
             String education) throws ToursException {
+        checkUsernameUnique(username);
         TourGuideUser guide = new TourGuideUser();
         guide.setUsername(username);
         guide.setPassword(password);
@@ -87,6 +96,14 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public void deleteUser(User user) throws ToursException {
+        if (!user.isActive()) {
+            throw new ToursException("User is already inactive");
+        }
+        if (user instanceof TourGuideUser) {
+            if (repository.getRouteRepository().isTourGuideAssignedToAnyRoute(user.getId())) {
+                throw new ToursException("TourGuide is assigned to routes and cannot be deleted");
+            }
+        }
         if (user.getPurchaseList() != null && !user.getPurchaseList().isEmpty()) {
             user.setActive(false);
             repository.getUserRepository().update(user);
@@ -183,6 +200,9 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public Supplier createSupplier(String businessName, String authorizationNumber) throws ToursException {
+        if (repository.getSupplierRepository().findByAuthorizationNumber(authorizationNumber) != null) {
+            throw new ToursException("Authorization number already exists: " + authorizationNumber);
+        }
         Supplier supplier = new Supplier();
         supplier.setBusinessName(businessName);
         supplier.setAuthorizationNumber(authorizationNumber);
@@ -214,7 +234,9 @@ public class ToursServiceImpl implements ToursService {
         service.setPrice(price);
         service.setDescription(description);
         service.setSupplier(supplier);
-        return repository.getServiceRepository().save(service);
+        Service saved = repository.getServiceRepository().save(service);
+        supplier.getServices().add(saved);
+        return saved;
     }
 
     @Override
@@ -245,13 +267,19 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public Purchase createPurchase(String code, Date date, Route route, User user) throws ToursException {
+        long count = repository.getPurchaseRepository().countByRoute(route.getId());
+        if (count >= route.getMaxNumberUsers()) {
+            throw new ToursException("Route is at capacity");
+        }
         Purchase purchase = new Purchase();
         purchase.setCode(code);
         purchase.setDate(date);
         purchase.setRoute(route);
         purchase.setUser(user);
         purchase.setTotalPrice(route.getPrice());
-        return repository.getPurchaseRepository().save(purchase);
+        Purchase saved = repository.getPurchaseRepository().save(purchase);
+        user.getPurchaseList().add(saved);
+        return saved;
     }
 
     @Override
@@ -260,10 +288,10 @@ public class ToursServiceImpl implements ToursService {
         item.setService(service);
         item.setQuantity(quantity);
         item.setPurchase(purchase);
+        purchase.getItemServiceList().add(item);
+        service.getItemServiceList().add(item);
         purchase.setTotalPrice(purchase.getTotalPrice() + service.getPrice() * quantity);
-        repository.getPurchaseRepository().update(purchase);
-        // ItemService se persiste via cascada desde Purchase (CascadeType.ALL)
-        return item;
+        return repository.getPurchaseRepository().saveItem(item);
     }
 
     @Override

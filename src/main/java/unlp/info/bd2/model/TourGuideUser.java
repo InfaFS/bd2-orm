@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@DiscriminatorValue("TOUR_GUIDE")
 public class TourGuideUser extends User {
 
     @Column(nullable = false)

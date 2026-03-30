@@ -1,6 +1,7 @@
 package unlp.info.bd2.model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,7 +16,7 @@ public class Supplier {
     private String authorizationNumber;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "supplier", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    private List<Service> services;
+    private List<Service> services = new ArrayList<>();
 
     public Long getId() {
         return id;

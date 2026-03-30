@@ -20,9 +20,13 @@ public interface RouteRepository {
 
     boolean hasPurchases(Long routeId);
 
+    boolean isTourGuideAssignedToAnyRoute(Long userId);
+
     List<Route> getRoutesWithStop(Stop stop);
 
     int getMaxStopOfRoutes();
+
+    List<Route> getRoutsNotSell();
 
     List<Route> getTop3RoutesWithMaxRating();
 }

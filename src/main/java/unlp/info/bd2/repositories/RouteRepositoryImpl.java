@@ -52,6 +52,15 @@ public class RouteRepositoryImpl implements RouteRepository {
     }
 
     @Override
+    public boolean isTourGuideAssignedToAnyRoute(Long userId) {
+        Long count = sessionFactory.getCurrentSession()
+                .createQuery("SELECT COUNT(r) FROM Route r JOIN r.tourGuideList g WHERE g.id = :userId", Long.class)
+                .setParameter("userId", userId)
+                .uniqueResult();
+        return count != null && count > 0;
+    }
+
+    @Override
     public boolean hasPurchases(Long routeId) {
         Long count = sessionFactory.getCurrentSession()
                 .createQuery("SELECT COUNT(p) FROM Purchase p WHERE p.route.id = :routeId", Long.class)
@@ -79,9 +88,9 @@ public class RouteRepositoryImpl implements RouteRepository {
     public List<Route> getRoutsNotSell() {
         return sessionFactory.getCurrentSession()
                 .createQuery(
-                    "FROM Route r WHERE r.id NOT IN " +
-                    "(SELECT DISTINCT p.route.id FROM Purchase p)",
-                    Route.class)
+                        "FROM Route r WHERE r.id NOT IN " +
+                        "(SELECT DISTINCT p.route.id FROM Purchase p)",
+                        Route.class)
                 .list();
     }
 
@@ -89,12 +98,12 @@ public class RouteRepositoryImpl implements RouteRepository {
     public List<Route> getTop3RoutesWithMaxRating() {
         return sessionFactory.getCurrentSession()
                 .createQuery(
-                    "SELECT p.route " +
-                    "FROM Purchase p " +
-                    "JOIN p.review r " +
-                    "GROUP BY p.route " +
-                    "ORDER BY AVG(r.rating) DESC",
-                    Route.class)
+                        "SELECT p.route " +
+                                "FROM Purchase p " +
+                                "JOIN p.review r " +
+                                "GROUP BY p.route " +
+                                "ORDER BY AVG(r.rating) DESC",
+                        Route.class)
                 .setMaxResults(3)
                 .list();
     }

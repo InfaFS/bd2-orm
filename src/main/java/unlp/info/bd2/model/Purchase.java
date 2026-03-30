@@ -1,6 +1,7 @@
 package unlp.info.bd2.model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class Purchase {
     private Review review;
 
     @OneToMany(mappedBy = "purchase", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemService> itemServiceList;
+    private List<ItemService> itemServiceList = new ArrayList<>();
 
     public Long getId() {
         return id;

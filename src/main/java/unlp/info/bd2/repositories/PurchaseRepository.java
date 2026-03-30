@@ -1,5 +1,6 @@
 package unlp.info.bd2.repositories;
 
+import unlp.info.bd2.model.ItemService;
 import unlp.info.bd2.model.Purchase;
 import java.util.List;
 import java.util.Date;
@@ -20,4 +21,8 @@ public interface PurchaseRepository {
     List<Purchase> findByUsername(String username);
 
     int getCountOfPurchasesBetweenDates(Date start, Date end);
+
+    long countByRoute(Long routeId);
+
+    ItemService saveItem(ItemService item);
 }

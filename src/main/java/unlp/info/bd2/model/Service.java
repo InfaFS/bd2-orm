@@ -11,7 +11,7 @@ public class Service {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100, unique = true)
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Column(nullable = false)
@@ -20,7 +20,7 @@ public class Service {
     private String description;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "service", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    private List<ItemService> itemServiceList;
+    private List<ItemService> itemServiceList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Supplier supplier;

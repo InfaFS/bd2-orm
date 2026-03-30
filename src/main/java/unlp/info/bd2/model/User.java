@@ -6,16 +6,14 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "user_type", // Nombre de la columna en la DB
-        discriminatorType = DiscriminatorType.STRING // Tipo de dato (puede ser CHAR o INTEGER)
-)
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(updatable = false)
     private String username;
 
     private String password;
@@ -31,7 +29,7 @@ public class User {
     private boolean active;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    private List<Purchase> purchaseList;
+    private List<Purchase> purchaseList = new ArrayList<>();
 
     public Long getId() {
         return id;
