@@ -1,29 +1,43 @@
 package unlp.info.bd2.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import unlp.info.bd2.model.*;
-import unlp.info.bd2.repositories.ToursRepository;
+import unlp.info.bd2.model.Service;
+import unlp.info.bd2.repositories.*;
 import unlp.info.bd2.utils.ToursException;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+// (1) @Service reemplaza la instanciación manual en AppConfig.
+// Spring detecta esta clase y la registra como bean automáticamente.
+@org.springframework.stereotype.Service
 @Transactional
 public class ToursServiceImpl implements ToursService {
 
-    private final ToursRepository repository;
-
-    public ToursServiceImpl(ToursRepository repository) {
-        this.repository = repository;
-    }
+    // (2) Cada repositorio se inyecta individualmente.
+    // Ya no existe la fachada ToursRepository que agrupaba todos los repos.
+    // Spring Data genera la implementación de cada interfaz en tiempo de ejecución
+    // y Spring la inyecta aquí vía @Autowired.
+    @Autowired private UserRepository userRepository;
+    @Autowired private RouteRepository routeRepository;
+    @Autowired private StopRepository stopRepository;
+    @Autowired private PurchaseRepository purchaseRepository;
+    @Autowired private ReviewRepository reviewRepository;
+    @Autowired private ServiceRepository serviceRepository;
+    @Autowired private SupplierRepository supplierRepository;
+    @Autowired private ItemServiceRepository itemServiceRepository;
 
     // -------------------------------------------------------------------------
     // USER
     // -------------------------------------------------------------------------
 
     private void checkUsernameUnique(String username) throws ToursException {
-        if (repository.getUserRepository().findByUsername(username) != null) {
+        // (3) Llamada directa al repositorio sin pasar por la fachada
+        if (userRepository.findByUsername(username) != null) {
             throw new ToursException("Username already exists: " + username);
         }
     }
@@ -40,7 +54,9 @@ public class ToursServiceImpl implements ToursService {
         user.setBirthdate(birthdate);
         user.setPhoneNumber(phoneNumber);
         user.setActive(true);
-        return repository.getUserRepository().save(user);
+        // (4) save() de CrudRepository reemplaza session.save().
+        // Funciona para insert y update según si el ID ya existe.
+        return userRepository.save(user);
     }
 
     @Override
@@ -57,7 +73,7 @@ public class ToursServiceImpl implements ToursService {
         driver.setPhoneNumber(phoneNumber);
         driver.setExpedient(expedient);
         driver.setActive(true);
-        return (DriverUser) repository.getUserRepository().save(driver);
+        return (DriverUser) userRepository.save(driver);
     }
 
     @Override
@@ -74,24 +90,29 @@ public class ToursServiceImpl implements ToursService {
         guide.setPhoneNumber(phoneNumber);
         guide.setEducation(education);
         guide.setActive(true);
-        return (TourGuideUser) repository.getUserRepository().save(guide);
+        return (TourGuideUser) userRepository.save(guide);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<User> getUserById(Long id) throws ToursException {
-        return Optional.ofNullable(repository.getUserRepository().findById(id));
+        // (5) findById() de CrudRepository devuelve Optional<T>, no null.
+        // Antes: Optional.ofNullable(repo.findById(id)) para envolver el null.
+        // Ahora: findById ya devuelve Optional directamente.
+        return userRepository.findById(id).map(u -> (User) u);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<User> getUserByUsername(String username) throws ToursException {
-        return Optional.ofNullable(repository.getUserRepository().findByUsername(username));
+        return Optional.ofNullable(userRepository.findByUsername(username));
     }
 
     @Override
     public User updateUser(User user) throws ToursException {
-        return repository.getUserRepository().update(user);
+        // (6) update() no existe en CrudRepository.
+        // save() detecta que el ID ya existe y ejecuta UPDATE en lugar de INSERT.
+        return userRepository.save(user);
     }
 
     @Override
@@ -100,15 +121,15 @@ public class ToursServiceImpl implements ToursService {
             throw new ToursException("User is already inactive");
         }
         if (user instanceof TourGuideUser) {
-            if (repository.getRouteRepository().isTourGuideAssignedToAnyRoute(user.getId())) {
+            if (routeRepository.isTourGuideAssignedToAnyRoute(user.getId())) {
                 throw new ToursException("TourGuide is assigned to routes and cannot be deleted");
             }
         }
         if (user.getPurchaseList() != null && !user.getPurchaseList().isEmpty()) {
             user.setActive(false);
-            repository.getUserRepository().update(user);
+            userRepository.save(user);
         } else {
-            repository.getUserRepository().delete(user);
+            userRepository.delete(user);
         }
     }
 
@@ -121,13 +142,13 @@ public class ToursServiceImpl implements ToursService {
         Stop stop = new Stop();
         stop.setName(name);
         stop.setDescription(description);
-        return repository.getStopRepository().save(stop);
+        return stopRepository.save(stop);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Stop> getStopByNameStart(String name) {
-        return repository.getStopRepository().findByNameStart(name);
+        return stopRepository.findByNameStart(name);
     }
 
     // -------------------------------------------------------------------------
@@ -143,55 +164,53 @@ public class ToursServiceImpl implements ToursService {
         route.setTotalKm(totalKm);
         route.setMaxNumberUsers(maxNumberOfUsers);
         route.setStops(stops);
-        return repository.getRouteRepository().save(route);
+        return routeRepository.save(route);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Route> getRouteById(Long id) {
-        return Optional.ofNullable(repository.getRouteRepository().findById(id));
+        return routeRepository.findById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Route> getRoutesBelowPrice(float price) {
-        return repository.getRouteRepository().findBelowPrice(price);
+        return routeRepository.findBelowPrice(price);
     }
 
     @Override
     public void assignDriverByUsername(String username, Long idRoute) throws ToursException {
-        User user = repository.getUserRepository().findByUsername(username);
+        User user = userRepository.findByUsername(username);
         if (user == null || !(user instanceof DriverUser)) {
             throw new ToursException("Driver not found: " + username);
         }
-        Route route = repository.getRouteRepository().findById(idRoute);
-        if (route == null) {
-            throw new ToursException("Route not found: " + idRoute);
-        }
+        // (7) findById devuelve Optional — se usa orElseThrow para lanzar excepción
+        // si no existe, en lugar de chequear null manualmente.
+        Route route = routeRepository.findById(idRoute)
+                .orElseThrow(() -> new ToursException("Route not found: " + idRoute));
         route.getDriverList().add((DriverUser) user);
-        repository.getRouteRepository().update(route);
+        routeRepository.save(route);
     }
 
     @Override
     public void assignTourGuideByUsername(String username, Long idRoute) throws ToursException {
-        User user = repository.getUserRepository().findByUsername(username);
+        User user = userRepository.findByUsername(username);
         if (user == null || !(user instanceof TourGuideUser)) {
             throw new ToursException("Tour guide not found: " + username);
         }
-        Route route = repository.getRouteRepository().findById(idRoute);
-        if (route == null) {
-            throw new ToursException("Route not found: " + idRoute);
-        }
+        Route route = routeRepository.findById(idRoute)
+                .orElseThrow(() -> new ToursException("Route not found: " + idRoute));
         route.getTourGuideList().add((TourGuideUser) user);
-        repository.getRouteRepository().update(route);
+        routeRepository.save(route);
     }
 
     @Override
     public void deleteRoute(Route route) throws ToursException {
-        if (repository.getRouteRepository().hasPurchases(route.getId())) {
+        if (routeRepository.hasPurchases(route.getId())) {
             throw new ToursException("Cannot delete route with associated purchases");
         }
-        repository.getRouteRepository().delete(route);
+        routeRepository.delete(route);
     }
 
     // -------------------------------------------------------------------------
@@ -200,26 +219,25 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public Supplier createSupplier(String businessName, String authorizationNumber) throws ToursException {
-        if (repository.getSupplierRepository().findByAuthorizationNumber(authorizationNumber) != null) {
+        if (supplierRepository.findByAuthorizationNumber(authorizationNumber) != null) {
             throw new ToursException("Authorization number already exists: " + authorizationNumber);
         }
         Supplier supplier = new Supplier();
         supplier.setBusinessName(businessName);
         supplier.setAuthorizationNumber(authorizationNumber);
-        return repository.getSupplierRepository().save(supplier);
+        return supplierRepository.save(supplier);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Supplier> getSupplierById(Long id) {
-        return Optional.ofNullable(repository.getSupplierRepository().findById(id));
+        return supplierRepository.findById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Supplier> getSupplierByAuthorizationNumber(String authorizationNumber) {
-        return Optional.ofNullable(
-                repository.getSupplierRepository().findByAuthorizationNumber(authorizationNumber));
+        return Optional.ofNullable(supplierRepository.findByAuthorizationNumber(authorizationNumber));
     }
 
     // -------------------------------------------------------------------------
@@ -234,26 +252,23 @@ public class ToursServiceImpl implements ToursService {
         service.setPrice(price);
         service.setDescription(description);
         service.setSupplier(supplier);
-        Service saved = repository.getServiceRepository().save(service);
+        Service saved = serviceRepository.save(service);
         supplier.getServices().add(saved);
         return saved;
     }
 
     @Override
     public Service updateServicePriceById(Long id, float newPrice) throws ToursException {
-        Service service = repository.getServiceRepository().findById(id);
-        if (service == null) {
-            throw new ToursException("Service not found: " + id);
-        }
+        Service service = serviceRepository.findById(id)
+                .orElseThrow(() -> new ToursException("Service not found: " + id));
         service.setPrice(newPrice);
-        return repository.getServiceRepository().update(service);
+        return serviceRepository.save(service);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Service> getServiceByNameAndSupplierId(String name, Long id) throws ToursException {
-        return Optional.ofNullable(
-                repository.getServiceRepository().findByNameAndSupplierId(name, id));
+        return Optional.ofNullable(serviceRepository.findByNameAndSupplierId(name, id));
     }
 
     // -------------------------------------------------------------------------
@@ -267,7 +282,7 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public Purchase createPurchase(String code, Date date, Route route, User user) throws ToursException {
-        long count = repository.getPurchaseRepository().countByRoute(route.getId());
+        long count = purchaseRepository.countByRoute(route.getId());
         if (count >= route.getMaxNumberUsers()) {
             throw new ToursException("Route is at capacity");
         }
@@ -277,7 +292,7 @@ public class ToursServiceImpl implements ToursService {
         purchase.setRoute(route);
         purchase.setUser(user);
         purchase.setTotalPrice(route.getPrice());
-        Purchase saved = repository.getPurchaseRepository().save(purchase);
+        Purchase saved = purchaseRepository.save(purchase);
         user.getPurchaseList().add(saved);
         return saved;
     }
@@ -291,18 +306,20 @@ public class ToursServiceImpl implements ToursService {
         purchase.getItemServiceList().add(item);
         service.getItemServiceList().add(item);
         purchase.setTotalPrice(purchase.getTotalPrice() + service.getPrice() * quantity);
-        return repository.getPurchaseRepository().saveItem(item);
+        // (8) saveItem() desapareció de PurchaseRepository.
+        // ItemService es su propia entidad y tiene su propio repositorio.
+        return itemServiceRepository.save(item);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Purchase> getPurchaseByCode(String code) {
-        return Optional.ofNullable(repository.getPurchaseRepository().findByCode(code));
+        return Optional.ofNullable(purchaseRepository.findByCode(code));
     }
 
     @Override
     public void deletePurchase(Purchase purchase) throws ToursException {
-        repository.getPurchaseRepository().delete(purchase);
+        purchaseRepository.delete(purchase);
     }
 
     // -------------------------------------------------------------------------
@@ -319,72 +336,78 @@ public class ToursServiceImpl implements ToursService {
         review.setComment(comment);
         review.setPurchase(purchase);
         purchase.setReview(review);
-        repository.getPurchaseRepository().update(purchase);
-        // Review se persiste via cascada desde Purchase (CascadeType.ALL)
+        // (9) update() reemplazado por save(). La Review se persiste via cascada
+        // desde Purchase, por lo que alcanza con guardar el Purchase.
+        purchaseRepository.save(purchase);
         return review;
     }
 
     // -------------------------------------------------------------------------
-    // HQL QUERIES (a implementar en etapas posteriores)
+    // QUERIES
     // -------------------------------------------------------------------------
 
     @Override
     @Transactional(readOnly = true)
     public List<Purchase> getAllPurchasesOfUsername(String username) {
-        return repository.getPurchaseRepository().findByUsername(username);
+        return purchaseRepository.findByUsername(username);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> getUserSpendingMoreThan(float mount) {
-        return repository.getUserRepository().getUserSpendingMoreThan(mount);
+        return userRepository.getUserSpendingMoreThan(mount);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Supplier> getTopNSuppliersInPurchases(int n) {
-        return repository.getSupplierRepository().findTopNByPurchases(n);
+        // (10) findTopNByPurchases recibe Pageable en lugar de un int.
+        // PageRequest.of(0, n) significa: página 0, tamaño n — equivale al LIMIT n anterior.
+        return supplierRepository.findTopNByPurchases(PageRequest.of(0, n));
     }
 
     @Override
     @Transactional(readOnly = true)
     public long getCountOfPurchasesBetweenDates(Date start, Date end) {
-        return repository.getPurchaseRepository().getCountOfPurchasesBetweenDates(start, end);
+        return purchaseRepository.getCountOfPurchasesBetweenDates(start, end);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Route> getRoutesWithStop(Stop stop) {
-        return repository.getRouteRepository().getRoutesWithStop(stop);
+        // (11) El repositorio recibe Long en lugar de Stop para evitar
+        // dependencia del objeto entero en la query JPQL.
+        return routeRepository.getRoutesWithStop(stop.getId());
     }
 
     @Override
     @Transactional(readOnly = true)
     public Long getMaxStopOfRoutes() {
-        return (long) repository.getRouteRepository().getMaxStopOfRoutes();
+        return (long) routeRepository.getMaxStopOfRoutes();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Route> getRoutsNotSell() {
-        return repository.getRouteRepository().getRoutsNotSell();
+        return routeRepository.getRoutsNotSell();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Route> getTop3RoutesWithMaxRating() {
-        return repository.getRouteRepository().getTop3RoutesWithMaxRating();
+        // (12) Mismo patrón que findTopNByPurchases: Pageable reemplaza setMaxResults(3).
+        return routeRepository.getTop3RoutesWithMaxRating(PageRequest.of(0, 3));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Service getMostDemandedService() {
-        return repository.getServiceRepository().getMostDemandedService();
+        return serviceRepository.getMostDemandedService();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<TourGuideUser> getTourGuidesWithRating1() {
-        return repository.getUserRepository().getTourGuidesWithRating1();
+        return userRepository.getTourGuidesWithRating1();
     }
 }
