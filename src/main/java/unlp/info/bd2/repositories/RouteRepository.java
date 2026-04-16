@@ -1,32 +1,34 @@
 package unlp.info.bd2.repositories;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import unlp.info.bd2.model.Route;
 import unlp.info.bd2.model.Stop;
 
 import java.util.List;
 
-public interface RouteRepository {
-    Route save(Route route);
+public interface RouteRepository extends CrudRepository<Route, Long> {
 
-    Route findById(Long id);
+    @Query("FROM Route r WHERE r.price < :price")
+    List<Route> findBelowPrice(@Param("price") float price);
 
-    List<Route> findAll();
+    @Query("SELECT COUNT(r) > 0 FROM Route r JOIN r.tourGuideList g WHERE g.id = :userId")
+    boolean isTourGuideAssignedToAnyRoute(@Param("userId") Long userId);
 
-    void delete(Route route);
+    @Query("SELECT COUNT(p) > 0 FROM Purchase p WHERE p.route.id = :routeId")
+    boolean hasPurchases(@Param("routeId") Long routeId);
 
-    Route update(Route route);
+    @Query("SELECT DISTINCT r FROM Route r JOIN r.stops s WHERE s.id = :stopId")
+    List<Route> getRoutesWithStop(@Param("stopId") Long stopId);
 
-    List<Route> findBelowPrice(float price);
-
-    boolean hasPurchases(Long routeId);
-
-    boolean isTourGuideAssignedToAnyRoute(Long userId);
-
-    List<Route> getRoutesWithStop(Stop stop);
-
+    @Query("SELECT MAX(SIZE(r.stops)) FROM Route r")
     int getMaxStopOfRoutes();
 
+    @Query("FROM Route r WHERE r.id NOT IN (SELECT DISTINCT p.route.id FROM Purchase p)")
     List<Route> getRoutsNotSell();
 
-    List<Route> getTop3RoutesWithMaxRating();
+    @Query("SELECT p.route FROM Purchase p JOIN p.review r GROUP BY p.route ORDER BY AVG(r.rating) DESC")
+    List<Route> getTop3RoutesWithMaxRating(Pageable pageable);
 }

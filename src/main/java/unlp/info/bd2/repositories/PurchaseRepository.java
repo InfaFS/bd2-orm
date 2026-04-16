@@ -1,28 +1,24 @@
 package unlp.info.bd2.repositories;
 
-import unlp.info.bd2.model.ItemService;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import unlp.info.bd2.model.Purchase;
-import java.util.List;
+
 import java.util.Date;
+import java.util.List;
 
-public interface PurchaseRepository {
-    Purchase save(Purchase purchase);
+public interface PurchaseRepository extends CrudRepository<Purchase, Long> {
 
-    Purchase findById(Long id);
+    @Query("FROM Purchase p WHERE p.code = :code")
+    Purchase findByCode(@Param("code") String code);
 
-    List<Purchase> findAll();
+    @Query("FROM Purchase p WHERE p.user.username = :username")
+    List<Purchase> findByUsername(@Param("username") String username);
 
-    void delete(Purchase purchase);
+    @Query("SELECT COUNT(p) FROM Purchase p WHERE p.date BETWEEN :start AND :end")
+    long getCountOfPurchasesBetweenDates(@Param("start") Date start, @Param("end") Date end);
 
-    Purchase update(Purchase purchase);
-
-    Purchase findByCode(String code);
-
-    List<Purchase> findByUsername(String username);
-
-    int getCountOfPurchasesBetweenDates(Date start, Date end);
-
-    long countByRoute(Long routeId);
-
-    ItemService saveItem(ItemService item);
+    @Query("SELECT COUNT(p) FROM Purchase p WHERE p.route.id = :routeId")
+    long countByRoute(@Param("routeId") Long routeId);
 }

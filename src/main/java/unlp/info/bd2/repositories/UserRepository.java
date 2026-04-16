@@ -1,22 +1,21 @@
 package unlp.info.bd2.repositories;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import unlp.info.bd2.model.TourGuideUser;
 import unlp.info.bd2.model.User;
+
 import java.util.List;
 
-public interface UserRepository {
-    User save(User user);
+public interface UserRepository extends CrudRepository<User, Long> {
 
-    User findById(Long id);
+    @Query("FROM User u WHERE u.username = :username")
+    User findByUsername(@Param("username") String username);
 
-    List<User> findAll();
+    @Query("SELECT DISTINCT p.user FROM Purchase p WHERE p.totalPrice >= :amount")
+    List<User> getUserSpendingMoreThan(@Param("amount") float amount);
 
-    void delete(User user);
-
-    User update(User user);
-
-    User findByUsername(String username);
-
-    List<User> getUserSpendingMoreThan(float amount);
+    @Query("SELECT DISTINCT g FROM Purchase p JOIN p.review r JOIN p.route route JOIN route.tourGuideList g WHERE r.rating = 1")
     List<TourGuideUser> getTourGuidesWithRating1();
 }
