@@ -349,7 +349,7 @@ public class ToursServiceImpl implements ToursService {
     @Override
     @Transactional(readOnly = true)
     public List<Purchase> getAllPurchasesOfUsername(String username) {
-        return purchaseRepository.findByUsername(username);
+        return purchaseRepository.findByUserUsername(username);
     }
 
     @Override
@@ -369,15 +369,13 @@ public class ToursServiceImpl implements ToursService {
     @Override
     @Transactional(readOnly = true)
     public long getCountOfPurchasesBetweenDates(Date start, Date end) {
-        return purchaseRepository.getCountOfPurchasesBetweenDates(start, end);
+        return purchaseRepository.countByDateBetween(start, end);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Route> getRoutesWithStop(Stop stop) {
-        // (11) El repositorio recibe Long en lugar de Stop para evitar
-        // dependencia del objeto entero en la query JPQL.
-        return routeRepository.getRoutesWithStop(stop.getId());
+        return routeRepository.findDistinctByStops(stop);
     }
 
     @Override

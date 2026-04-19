@@ -20,8 +20,7 @@ public interface RouteRepository extends CrudRepository<Route, Long> {
     @Query("SELECT COUNT(p) > 0 FROM Purchase p WHERE p.route.id = :routeId")
     boolean hasPurchases(@Param("routeId") Long routeId);
 
-    @Query("SELECT DISTINCT r FROM Route r JOIN r.stops s WHERE s.id = :stopId")
-    List<Route> getRoutesWithStop(@Param("stopId") Long stopId);
+    List<Route> findDistinctByStops(Stop stop);
 
     @Query("SELECT MAX(SIZE(r.stops)) FROM Route r")
     int getMaxStopOfRoutes();
