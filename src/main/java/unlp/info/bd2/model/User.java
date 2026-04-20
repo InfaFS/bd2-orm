@@ -1,12 +1,16 @@
 package unlp.info.bd2.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@SQLDelete(sql = "UPDATE user SET active = false WHERE id = ?")
+@SQLRestriction("active = true")
 public class User {
 
     @Id
@@ -26,7 +30,7 @@ public class User {
 
     private String phoneNumber;
 
-    private boolean active;
+    private boolean active = true;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private List<Purchase> purchaseList = new ArrayList<>();
