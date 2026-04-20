@@ -129,7 +129,7 @@ public class ToursServiceImpl implements ToursService {
             user.setActive(false);
             userRepository.save(user);
         } else {
-            userRepository.delete(user);
+            userRepository.physicalDeleteById(user.getId());
         }
     }
 
@@ -319,7 +319,11 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     public void deletePurchase(Purchase purchase) throws ToursException {
-        purchaseRepository.delete(purchase);
+        Purchase managed = purchaseRepository.findById(purchase.getId())
+                .orElseThrow(() -> new ToursException("Purchase not found"));
+        managed.getUser().getPurchaseList().remove(managed);
+        itemServiceRepository.deleteByPurchase(managed);
+        purchaseRepository.delete(managed);
     }
 
     // -------------------------------------------------------------------------
@@ -336,10 +340,8 @@ public class ToursServiceImpl implements ToursService {
         review.setComment(comment);
         review.setPurchase(purchase);
         purchase.setReview(review);
-        // (9) update() reemplazado por save(). La Review se persiste via cascada
-        // desde Purchase, por lo que alcanza con guardar el Purchase.
-        purchaseRepository.save(purchase);
-        return review;
+        Purchase saved = purchaseRepository.save(purchase);
+        return saved.getReview();
     }
 
     // -------------------------------------------------------------------------

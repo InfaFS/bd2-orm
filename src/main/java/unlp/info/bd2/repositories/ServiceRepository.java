@@ -10,6 +10,6 @@ public interface ServiceRepository extends CrudRepository<Service, Long> {
     @Query("FROM Service s WHERE s.name = :name AND s.supplier.id = :supplierId")
     Service findByNameAndSupplierId(@Param("name") String name, @Param("supplierId") Long supplierId);
 
-    @Query("SELECT item.service FROM ItemService item GROUP BY item.service ORDER BY COUNT(DISTINCT item.purchase) DESC LIMIT 1")
+    @Query("SELECT item.service FROM ItemService item GROUP BY item.service ORDER BY COUNT(DISTINCT item.purchase) DESC, item.service.id DESC LIMIT 1")
     Service getMostDemandedService();
 }

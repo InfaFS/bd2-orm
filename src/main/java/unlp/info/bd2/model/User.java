@@ -10,7 +10,6 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @SQLDelete(sql = "UPDATE user SET active = false WHERE id = ?")
-@SQLRestriction("active = true")
 public class User {
 
     @Id
